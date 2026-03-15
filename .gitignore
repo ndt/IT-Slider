@@ -1,5 +1,2 @@
 # Project exclude paths
-/app.js
-/config.js
-/domain.js
-/domain.test.js
+/dist/

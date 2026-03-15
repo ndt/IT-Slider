@@ -11,8 +11,7 @@ IT-Slider is a TypeScript-based interactive tool for planning IT resource alloca
 
 ## 📋 Requirements
 
-- **Node.js** (latest LTS recommended)
-- **npm** or **yarn**
+- **Deno** (latest recommended)
 - **Web Browser** (Chrome, Firefox, or Edge)
 
 ## 🛠️ Setup & Installation
@@ -23,21 +22,19 @@ IT-Slider is a TypeScript-based interactive tool for planning IT resource alloca
    cd IT-Slider
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
 ## 🏗️ Building the Project
 
-Since this project is written in TypeScript, it needs to be transpiled to JavaScript for the browser.
+The project uses Deno tasks for building and bundling.
 
 Run the TypeScript compiler:
 ```bash
-npx tsc
+deno task build
 ```
 
-This will generate `app.js` based on the configuration in `tsconfig.json`.
+Bundle into a single file:
+```bash
+deno task bundle
+```
 
 ## 🏃 Running the Application
 
@@ -48,47 +45,57 @@ After building the project, open `it-slider.html` in your web browser:
 
 ## 📜 Scripts
 
-Currently defined scripts in `package.json`:
+Currently defined scripts in `deno.json`:
 
-| Script | Description |
+| Task | Description |
 | :--- | :--- |
-| `test` | Placeholder for testing (not yet implemented). |
+| `build` | Compiles TypeScript to JavaScript using tsc. |
+| `bundle` | Inlines CSS and JS into a single `bundle.html`. |
+| `bundle-min` | Creates a minified `bundle.min.html` including external libraries. |
+| `check` | Verifies DOM IDs match between app.ts and HTML. |
+| `test` | Runs unit tests for domain logic. |
 
-To compile TypeScript manually:
 ```bash
-npx tsc
+deno task <task_name>
 ```
 
 ## 🧪 Testing
 
-Testing infrastructure is partially defined in the project guidelines.
+### Static Integrity Check
+Run the `check` task to ensure DOM elements in `app.ts` match `it-slider.html`.
+```bash
+deno task check
+```
 
-### Static Integrity Check (TODO)
-The guidelines mention a `check_integrity.py` script to ensure DOM elements in `app.ts` match `it-slider.html`.
-- **Status**: TODO - Script currently missing from repository.
-
-### Unit Testing (TODO)
-Recommended setup with **Jest**:
-1. Install Jest and ts-jest:
-   ```bash
-   npm install --save-dev jest ts-jest @types/jest jsdom @types/jsdom
-   ```
-2. Configure `jest.config.js`.
-3. Create `app.test.ts`.
+### Unit Testing
+Run unit tests for core domain logic using Deno's built-in test runner:
+```bash
+deno task test
+```
 
 ## 📂 Project Structure
 
-- `app.ts`: Main application logic (TypeScript source).
-- `app.js`: Compiled JavaScript output.
-- `it-slider.html`: Main HTML entry point.
-- `style.css`: Application styling.
-- `tsconfig.json`: TypeScript configuration.
-- `package.json`: Project dependencies and metadata.
-- `main.py`: Default PyCharm script (can be removed if unused).
+- `src/`: Contains source code and assets.
+  - `app.ts`: Main application logic.
+  - `domain.ts`: Core domain logic.
+  - `config.ts`: Configuration data.
+  - `it-slider.html`: Main HTML entry point.
+  - `style.css`: Application styling.
+- `scripts/`: Contains build and maintenance scripts.
+  - `bundle.ts`: Single-file bundling script.
+  - `check_integrity.ts`: DOM integrity verification script.
+- `dist/`: Compiled JavaScript output (generated after build).
+- `bundle.html`: Self-contained version of the application (generated after bundle).
+- `deno.json`: Deno configuration and tasks.
+
+## 🚀 Releases
+
+The project automatically generates standalone HTML bundles on every new version tag (`v*`). 
+You can find the latest `bundle.html` (standard) and `bundle.min.html` (fully self-contained & minified) in the [GitHub Releases](https://github.com/nicolas-it/IT-Slider/releases) section.
 
 ## 📄 License
 
-This project is licensed under the **ISC License** (see `package.json`).
+This project is licensed under the **ISC License**.
 
 ---
 

@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "build": "deno run --allow-read --allow-write --allow-run npm:typescript/bin/tsc src/app.ts src/domain.ts src/config.ts --outDir dist --target ESNext --module ESNext --moduleResolution Node --strict --skipLibCheck --esModuleInterop",
+    "bundle": "deno run --allow-read --allow-write scripts/bundle.ts",
+    "bundle-min": "deno run --allow-read --allow-write --allow-net --allow-env --allow-run scripts/bundle_min.ts",
+    "check": "deno run --allow-read scripts/check_integrity.ts",
+    "test": "deno test --allow-read src/domain.test.ts"
+  }
+}

@@ -1,4 +1,6 @@
-import { Dimension, DimensionList, LockStatus } from './domain';
+import { expect } from "jsr:@std/expect";
+import { describe, it, beforeEach } from "jsr:@std/testing/bdd";
+import { Dimension, DimensionList, LockStatus } from './domain.ts';
 
 describe('Dimension', () => {
     it('should clamp values between 0 and maxValue', () => {

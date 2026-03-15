@@ -36,6 +36,6 @@ const config = {
       "lockedMinValue": 0
     }
   ]
-};
+} as const;
 
 export default config;
