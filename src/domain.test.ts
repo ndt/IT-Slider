@@ -1,5 +1,5 @@
-import { expect } from "jsr:@std/expect";
-import { describe, it, beforeEach } from "jsr:@std/testing/bdd";
+import { expect } from "@std/expect";
+import { describe, it, beforeEach } from "@std/testing/bdd";
 import { Dimension, DimensionList, LockStatus } from './domain.ts';
 
 describe('Dimension', () => {

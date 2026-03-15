@@ -1,6 +1,22 @@
-import { minify } from "npm:terser";
-import CleanCSS from "npm:clean-css";
-import { minify as minifyHtml } from "npm:html-minifier-terser";
+import { minify } from "terser";
+import CleanCSS from "clean-css";
+import { minify as minifyHtml } from "html-minifier-terser";
+
+// Process Local JS
+async function processLocalJs(filename: string) {
+    if (!(await exists(filename))) return "";
+    const text = await Deno.readTextFile(filename);
+    const lines = text.split('\n');
+    const processedLines = lines.map(line => {
+        if (line.trimStart().startsWith('import ')) return null;
+        if (line.trimStart().startsWith('export ')) {
+            if (line.match(/^\s*export\s+default\s+\w+;?\s*$/)) return null;
+            return line.replace(/^\s*export\s+/, '');
+        }
+        return line;
+    }).filter(line => line !== null);
+    return processedLines.join('\n');
+}
 
 async function bundleMin() {
     const htmlFile = 'src/it-slider.html';
@@ -76,22 +92,6 @@ async function bundleMin() {
 
         // 3. Minify CSS
         const minifiedCss = new CleanCSS({}).minify(combinedCss).styles;
-
-        // 4. Process Local JS
-        async function processLocalJs(filename: string) {
-            if (!(await exists(filename))) return "";
-            const text = await Deno.readTextFile(filename);
-            const lines = text.split('\n');
-            const processedLines = lines.map(line => {
-                if (line.trimStart().startsWith('import ')) return null;
-                if (line.trimStart().startsWith('export ')) {
-                    if (line.match(/^\s*export\s+default\s+\w+;?\s*$/)) return null;
-                    return line.replace(/^\s*export\s+/, '');
-                }
-                return line;
-            }).filter(line => line !== null);
-            return processedLines.join('\n');
-        }
 
         const configContent = await processLocalJs(configJs);
         const domainContent = await processLocalJs(domainJs);

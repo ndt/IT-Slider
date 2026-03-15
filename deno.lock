@@ -4,12 +4,17 @@
     "jsr:@std/assert@^1.0.17": "1.0.19",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/expect@*": "1.0.18",
+    "jsr:@std/expect@1": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/testing@*": "1.0.17",
+    "jsr:@std/testing@1": "1.0.17",
     "npm:clean-css@*": "5.3.3",
+    "npm:clean-css@^5.3.3": "5.3.3",
     "npm:html-minifier-terser@*": "7.2.0",
+    "npm:html-minifier-terser@^7.2.0": "7.2.0",
     "npm:terser@*": "5.46.0",
+    "npm:terser@^5.30.0": "5.46.0",
     "npm:typescript@*": "5.9.3"
   },
   "jsr": {
@@ -178,5 +183,15 @@
       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
       "bin": true
     }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1",
+      "jsr:@std/expect@1",
+      "jsr:@std/testing@1",
+      "npm:clean-css@^5.3.3",
+      "npm:html-minifier-terser@^7.2.0",
+      "npm:terser@^5.30.0"
+    ]
   }
 }

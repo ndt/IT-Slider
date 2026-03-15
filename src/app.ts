@@ -1,9 +1,9 @@
-import { Dimension, DimensionList, LockStatus } from './domain.js';
+import { Dimension, DimensionList, LockStatus, DimensionListJSON } from './domain.js';
 import config from './config.js';
 
 // --- TYPES & INTERFACES ---
 interface AppState {
-    dimensions: any;
+    dimensions: DimensionListJSON;
 }
 /**
  * Typed Chart.js subset to avoid 'any'. 
@@ -149,10 +149,10 @@ class ConfigManager {
         a.click();
     }
 
-    static async import(event: Event): Promise<{ dimensions: DimensionList, useFull: boolean } | null> {
+    static import(event: Event): Promise<{ dimensions: DimensionList, useFull: boolean } | null> {
         const target = event.target as HTMLInputElement;
         const file = target.files?.[0];
-        if (!file) return null;
+        if (!file) return Promise.resolve(null);
 
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -169,7 +169,7 @@ class ConfigManager {
                     
                     target.value = "";
                     resolve({ dimensions: dimensionList, useFull });
-                } catch (err) { 
+                } catch (_err) { 
                     alert("Fehler beim Laden."); 
                     resolve(null);
                 }
@@ -181,7 +181,7 @@ class ConfigManager {
 
 class ITResourcePlanner {
     private dimensions: DimensionList;
-    private initialConfig: any;
+    private initialConfig: DimensionListJSON;
     
     private history = new HistoryManager();
     private chartManager!: ChartManager;
@@ -338,7 +338,7 @@ class ITResourcePlanner {
 
     private saveState(): void {
         this.history.save({
-            dimensions: this.dimensions.toJSON().dimensions
+            dimensions: this.dimensions.toJSON()
         });
     }
 
@@ -354,11 +354,11 @@ class ITResourcePlanner {
 
     private applyState(state: AppState): void {
         this.dimensions.items.forEach((dim, i) => {
-            const dimState = state.dimensions[i];
+            const dimState = state.dimensions.dimensions[i];
             if (dimState) {
                 dim.value = dimState.value;
-                dim.lockStatus = dimState.lockStatus;
-                dim.lockedMinValue = dimState.lockedMinValue;
+                dim.lockStatus = dimState.lockStatus ?? LockStatus.OFF;
+                dim.lockedMinValue = dimState.lockedMinValue ?? 0;
             }
         });
         this.renderSliders();
@@ -415,7 +415,7 @@ class ITResourcePlanner {
         this.updateUI();
     }
 
-    private reInitialize(fromScript: boolean = false): void {
+    private reInitialize(fromScript = false): void {
         if (!fromScript) {
             this.dimensions.items.forEach((dim, i) => {
                 dim.maxValue = parseFloat(DOMUtils.getInput(`cfgMax${i}`).value) || 0.1;
@@ -450,6 +450,6 @@ class ITResourcePlanner {
 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    (window as any).planner = new ITResourcePlanner();
+globalThis.addEventListener('DOMContentLoaded', () => {
+    (globalThis as unknown as { planner: ITResourcePlanner }).planner = new ITResourcePlanner();
 });

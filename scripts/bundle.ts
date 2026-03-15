@@ -1,3 +1,31 @@
+// Prepare JS content
+async function processJs(filename: string) {
+    if (!(await exists(filename))) {
+        console.warn(`Warning: ${filename} not found.`);
+        return "";
+    }
+    const text = await Deno.readTextFile(filename);
+    const lines = text.split('\n');
+    
+    const processedLines = lines.map(line => {
+        // Skip ESM import statements for inlining
+        if (line.trimStart().startsWith('import ')) {
+            return null;
+        }
+        if (line.trimStart().startsWith('export ')) {
+            // If it's "export default variable;", just skip the whole line
+            if (line.match(/^\s*export\s+default\s+\w+;?\s*$/)) {
+                return null;
+            }
+            // For "export class", "export enum", etc., just remove "export "
+            return line.replace(/^\s*export\s+/, '');
+        }
+        return line;
+    }).filter(line => line !== null);
+
+    return processedLines.join('\n');
+}
+
 async function bundle() {
     const htmlFile = 'src/it-slider.html';
     const cssFile = 'src/style.css';
@@ -16,34 +44,6 @@ async function bundle() {
                 /<link rel="stylesheet" href="style.css">/,
                 `<style>\n${cssContent}\n</style>`
             );
-        }
-
-        // Prepare JS content
-        async function processJs(filename: string) {
-            if (!(await exists(filename))) {
-                console.warn(`Warning: ${filename} not found.`);
-                return "";
-            }
-            const text = await Deno.readTextFile(filename);
-            const lines = text.split('\n');
-            
-            const processedLines = lines.map(line => {
-                // Skip ESM import statements for inlining
-                if (line.trimStart().startsWith('import ')) {
-                    return null;
-                }
-                if (line.trimStart().startsWith('export ')) {
-                    // If it's "export default variable;", just skip the whole line
-                    if (line.match(/^\s*export\s+default\s+\w+;?\s*$/)) {
-                        return null;
-                    }
-                    // For "export class", "export enum", etc., just remove "export "
-                    return line.replace(/^\s*export\s+/, '');
-                }
-                return line;
-            }).filter(line => line !== null);
-
-            return processedLines.join('\n');
         }
 
         const configContent = await processJs(configJs);

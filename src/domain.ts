@@ -4,6 +4,21 @@ export enum LockStatus {
     FULL = 2
 }
 
+export interface DimensionJSON {
+    readonly label: string;
+    readonly value: number;
+    readonly maxValue: number;
+    readonly lockStatus?: LockStatus;
+    readonly lockedMinValue?: number;
+    readonly currentValue?: number; // for legacy imports
+}
+
+export interface DimensionListJSON {
+    readonly dimensions: readonly DimensionJSON[];
+    readonly isFullState?: boolean;
+    readonly totalBudget?: number;
+}
+
 export class Dimension {
     constructor(
         public label: string,
@@ -13,17 +28,17 @@ export class Dimension {
         public lockedMinValue: number = 0
     ) {}
 
-    static fromJSON(json: any): Dimension {
+    static fromJSON(json: DimensionJSON): Dimension {
         return new Dimension(
             json.label,
-            json.value,
+            json.value ?? json.currentValue ?? 0,
             json.maxValue,
             json.lockStatus ?? LockStatus.OFF,
             json.lockedMinValue ?? 0
         );
     }
 
-    toJSON(): any {
+    toJSON(): DimensionJSON {
         return {
             label: this.label,
             value: this.value,
@@ -41,7 +56,7 @@ export class Dimension {
         return this.lockStatus === LockStatus.MIN;
     }
 
-    toggleLock() {
+    toggleLock(): void {
         this.lockStatus = (this.lockStatus + 1) % 3;
         this.lockedMinValue = (this.lockStatus === LockStatus.MIN) ? this.value : 0;
     }
@@ -51,7 +66,7 @@ export class Dimension {
         return Math.max(min, Math.min(this.maxValue, val));
     }
 
-    setValue(val: number) {
+    setValue(val: number): void {
         if (this.isLocked) return;
         this.value = this.clampValue(val);
     }
@@ -64,12 +79,12 @@ export class DimensionList {
         this.dimensions = dimensions;
     }
 
-    static fromJSON(json: any): DimensionList {
-        const dims = (json.dimensions || []).map((d: any) => Dimension.fromJSON(d));
+    static fromJSON(json: DimensionListJSON): DimensionList {
+        const dims = (json.dimensions || []).map((d: DimensionJSON) => Dimension.fromJSON(d));
         return new DimensionList(dims);
     }
 
-    toJSON(): any {
+    toJSON(): DimensionListJSON {
         return {
             dimensions: this.dimensions.map(d => d.toJSON())
         };
@@ -87,11 +102,11 @@ export class DimensionList {
         return this.dimensions.reduce((sum, d) => sum + d.maxValue, 0);
     }
 
-    add(dim: Dimension) {
+    add(dim: Dimension): void {
         this.dimensions.push(dim);
     }
 
-    remove(index: number) {
+    remove(index: number): void {
         if (index >= 0 && index < this.dimensions.length) {
             this.dimensions.splice(index, 1);
         }
@@ -144,11 +159,11 @@ export class DimensionList {
         return diff;
     }
 
-    adjustToTotal(totalBudget: number) {
+    adjustToTotal(totalBudget: number): void {
         this.balance(null, totalBudget);
     }
 
-    distributeFairly(totalBudget: number) {
+    distributeFairly(totalBudget: number): void {
         const sumM = this.totalMaxValue();
         if (sumM > 0) {
             this.dimensions.forEach(d => {
@@ -157,7 +172,7 @@ export class DimensionList {
         }
     }
 
-    fillToMaximum() {
+    fillToMaximum(): void {
         this.dimensions.forEach(d => d.value = d.maxValue);
     }
 }
