@@ -1,0 +1,35 @@
+/* IT-Slider Styles */
+body { 
+    background-color: #f8f9fa; 
+}
+
+/* Custom Slider Accents for Bootstrap form-range */
+input[type=range].accent-orange {
+    accent-color: #fd7e14; /* Bootstrap warning/orange */
+}
+
+input[type=range].accent-red {
+    accent-color: #dc3545; /* Bootstrap danger/red */
+}
+
+/* Specific Radar Chart container if needed */
+#resourceChart {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Override Bootstrap dashed border for legend */
+.border-dashed {
+    border-style: dashed !important;
+}
+
+/* Hover effects for buttons */
+.btn-adj:active {
+    transform: scale(0.92);
+}
+
+/* Animation for accordion */
+.accordion-button:not(.collapsed) {
+    background-color: #e7f1ff;
+    color: #0c63e4;
+}
