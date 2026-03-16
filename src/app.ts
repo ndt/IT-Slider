@@ -223,8 +223,7 @@ class ITResourcePlanner {
             'btnRedo': () => this.redo(),
             'btnFair': () => this.distributeFairly(),
             'btnFull': () => this.fillToMaximum(),
-            'btnReset': () => this.resetToInitial(),
-            'btnAddDimension': () => this.addNewDimension()
+            'btnReset': () => this.resetToInitial()
         };
 
         Object.entries(clickActions).forEach(([id, action]) => {
@@ -383,6 +382,29 @@ class ITResourcePlanner {
             `;
             tbody.appendChild(row);
         });
+
+        // Add row for new dimension
+        const addRow = document.createElement('tr');
+        addRow.className = 'table-info';
+        addRow.innerHTML = `
+            <td><input type="text" class="form-control form-control-sm" id="newDimLabel" placeholder="Neue Dimension..." style="min-width: 150px;"></td>
+            <td class="text-muted small align-middle">Start: 0.0</td>
+            <td class="text-muted small align-middle">Max: 5.0</td>
+            <td><button class="btn btn-sm btn-success" id="btnDoAdd"><span class="bi bi-plus-lg"></span></button></td>
+        `;
+        tbody.appendChild(addRow);
+        
+        // Use document.getElementById directly as these elements were just added and DOM might need a tick or standard access
+        const btnDoAdd = document.getElementById('btnDoAdd');
+        if (btnDoAdd) {
+            btnDoAdd.onclick = () => this.addNewDimension();
+        }
+        const newDimLabel = document.getElementById('newDimLabel');
+        if (newDimLabel) {
+            newDimLabel.onkeypress = (e: KeyboardEvent) => {
+                if (e.key === 'Enter') this.addNewDimension();
+            };
+        }
     }
 
     private updateInitialConfig(): void {
@@ -400,12 +422,17 @@ class ITResourcePlanner {
     }
 
     private addNewDimension(): void {
-        const label = prompt("Name der neuen Dimension:");
-        if (!label) return;
-        const maxValue = parseFloat(prompt("Maximaler Bedarf:", "5.0") || "0") || 5.0;
-        const startValue = parseFloat(prompt("Startwert:", "0.0") || "0") || 0.0;
+        const labelInput = DOMUtils.getInput('newDimLabel');
+        const label = labelInput.value.trim();
+        if (!label) {
+            labelInput.focus();
+            return;
+        }
         
-        const newDim = new Dimension(label, Math.min(startValue, maxValue), maxValue);
+        const maxValue = 5.0;
+        const startValue = 0.0;
+
+        const newDim = new Dimension(label, startValue, maxValue);
         this.dimensions.add(newDim);
         this.updateInitialConfig();
         
@@ -413,6 +440,9 @@ class ITResourcePlanner {
         this.buildConfigTable();
         this.renderSliders();
         this.updateUI();
+        
+        // Focus the new input field again for quick sequential adding
+        DOMUtils.get('newDimLabel').focus();
     }
 
     private reInitialize(fromScript = false): void {
