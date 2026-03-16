@@ -1,27 +1,5 @@
-/// <reference path="./types/chartjs.d.ts" />
-import { 
-    Chart, 
-    RadarController, 
-    RadialLinearScale, 
-    PointElement, 
-    LineElement, 
-    Filler, 
-    Legend, 
-    Tooltip 
-} from 'chart.js';
 import { Dimension, DimensionList, LockStatus, DimensionListJSON } from './domain.js';
 import config from './config.js';
-
-// Register necessary Chart.js components
-Chart.register(
-    RadarController, 
-    RadialLinearScale, 
-    PointElement, 
-    LineElement, 
-    Filler, 
-    Legend, 
-    Tooltip
-);
 
 // --- TYPES & INTERFACES ---
 interface AppState {
@@ -108,6 +86,7 @@ class ChartManager {
     private chart: RadarChart;
 
     constructor(ctx: CanvasRenderingContext2D, labels: string[], values: number[], maxValues: number[]) {
+        // @ts-ignore (Chart.js via CDN)
         this.chart = new Chart(ctx, {
             type: 'radar',
             data: {

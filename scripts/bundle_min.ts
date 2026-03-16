@@ -7,23 +7,9 @@ async function processLocalJs(filename: string) {
     if (!(await exists(filename))) return "";
     const text = await Deno.readTextFile(filename);
     const lines = text.split('\n');
-    let inImportBlock = false;
-
     const processedLines = lines.map(line => {
-        const trimmed = line.trimStart();
-        if (trimmed.startsWith('import ')) {
-            if (trimmed.includes('{') && !trimmed.includes('}')) {
-                inImportBlock = true;
-            }
-            return null;
-        }
-        if (inImportBlock) {
-            if (trimmed.includes('}')) {
-                inImportBlock = false;
-            }
-            return null;
-        }
-        if (trimmed.startsWith('export ')) {
+        if (line.trimStart().startsWith('import ')) return null;
+        if (line.trimStart().startsWith('export ')) {
             if (line.match(/^\s*export\s+default\s+\w+;?\s*$/)) return null;
             return line.replace(/^\s*export\s+/, '');
         }
@@ -135,7 +121,7 @@ async function bundleMin() {
         htmlContent = htmlContent.replace(/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap@5\.3\.0\/dist\/css\/bootstrap\.min\.css">/, "");
         htmlContent = htmlContent.replace(/<link rel="stylesheet" href="https:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap-icons@1\.13\.1\/font\/bootstrap-icons\.min\.css">/, "");
         htmlContent = htmlContent.replace(/<link rel="stylesheet" href="style\.css">/, "");
-        htmlContent = htmlContent.replace(/<script type="importmap">[\s\S]*?<\/script>/, "");
+        htmlContent = htmlContent.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js"><\/script>/, "");
         htmlContent = htmlContent.replace(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap@5\.3\.0\/dist\/js\/bootstrap\.bundle\.min\.js"><\/script>/, "");
         htmlContent = htmlContent.replace(/<script type="module" src="\.\.\/dist\/app\.js"><\/script>/, "");
 
