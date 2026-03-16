@@ -7,12 +7,29 @@ async function processJs(filename: string) {
     const text = await Deno.readTextFile(filename);
     const lines = text.split('\n');
     
+    // Track if we are in a multi-line import block
+    let inImportBlock = false;
+
     const processedLines = lines.map(line => {
-        // Skip ESM import statements for inlining
-        if (line.trimStart().startsWith('import ')) {
+        const trimmed = line.trimStart();
+        
+        // Handle import blocks (multi-line)
+        if (trimmed.startsWith('import ')) {
+            const isChartImport = trimmed.includes("'chart.js'") || trimmed.includes('"chart.js"');
+            if (trimmed.includes('{') && !trimmed.includes('}')) {
+                inImportBlock = !isChartImport; // track only for non-chart imports
+            }
+            return isChartImport ? line : null;
+        }
+        
+        if (inImportBlock) {
+            if (trimmed.includes('}')) {
+                inImportBlock = false;
+            }
             return null;
         }
-        if (line.trimStart().startsWith('export ')) {
+
+        if (trimmed.startsWith('export ')) {
             // If it's "export default variable;", just skip the whole line
             if (line.match(/^\s*export\s+default\s+\w+;?\s*$/)) {
                 return null;
@@ -58,8 +75,10 @@ async function bundle() {
         // Replace the <script type="module" src="../dist/app.js"></script>
         content = content.replace(
             /<script type="module" src="\.\.\/dist\/app.js"><\/script>/,
-            `<script>\n${combinedJs}\n</script>`
+            `<script type="module">\n${combinedJs}\n</script>`
         );
+
+        // Keep importmap so that 'chart.js' bare specifier resolves at runtime
 
         await Deno.writeTextFile(outputFile, content);
         console.log(`Successfully bundled into ${outputFile}`);

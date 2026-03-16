@@ -32,8 +32,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            bundle.html
-            bundle.min.html
+            dist/bundle.html
+            dist/bundle.min.html
           draft: false
           prerelease: false
           generate_release_notes: true
