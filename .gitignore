@@ -1,2 +1,5 @@
 # Project exclude paths
 /dist/
+
+deno_lint_output.json
+deno_lint_output.txt
